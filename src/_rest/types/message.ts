@@ -7,11 +7,13 @@ import { IUser } from "./user";
 
 export interface IMessage extends Document {
     text: string;
-    user: Schema | IUser; 
-    transfer?: Schema | ITransfer; 
-    pickup?: Schema | IPickup;
-    order?: Schema | IOrder;
+    user: Schema.Types.ObjectId | IUser; 
+    transfer?: Schema.Types.ObjectId | ITransfer; 
+    pickup?: Schema.Types.ObjectId | IPickup;
+    order?: Schema.Types.ObjectId | IOrder;
+    seen: boolean;
     timestamps: {
         created: Date; 
+        seen: Date;
     }
 }

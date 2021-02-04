@@ -10,7 +10,7 @@ import { IWarehouse } from './warehouse';
 export interface IItem extends Document {
     product: Schema.Types.ObjectId | IProduct;
     warehouse: Schema.Types.ObjectId | IWarehouse;
-    status: string;
+    status: "available" | "undergoing delivery" | "undergoing transfer" | "with deliverer";
     pickup: Schema.Types.ObjectId | IPickup;
     transfer?: Schema.Types.ObjectId | ITransfer;
     deliverer?: Schema.Types.ObjectId | IDeliverer;

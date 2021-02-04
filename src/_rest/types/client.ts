@@ -14,13 +14,14 @@ export interface IClient extends Document {
     account: {
         rib: string,
         bank_name: string,
+        automatic_cashout?: number,
     },
     balance: {
         available: number, // virtual based on payments
         pending: number, // virtual based on payments
-        payments: IPayment[] // virtual 
     },
     membership: string;
     active: boolean;
+    payments: IPayment[] // virtual 
     managers: IUser[] // virtual
 }
