@@ -10,6 +10,7 @@ export interface IWarehouse extends Document {
     name: string;
     city: string;
     main: boolean;
+    active: boolean;
     fees: {
         order: number;
         pickup: number;

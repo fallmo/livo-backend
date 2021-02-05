@@ -1,34 +1,41 @@
 import { model, Model, Schema } from "mongoose";
 
-const schema = new Schema({
-  warehouse: {
-    type: Schema.Types.ObjectId,
-    ref: "Warehouse",
-    required: true,
-  },
-  status: {
-    type: String,
-    required: true,
-    enum: [
-      "available",
-      "unavailable",
-      "performing pickup",
-      "performing delivery",
-    ],
-  },
-  options: {
-    _id: false,
-    zones: [String],
-    pickups: {
+const schema = new Schema(
+  {
+    warehouse: {
+      type: Schema.Types.ObjectId,
+      ref: "Warehouse",
+      required: true,
+    },
+    status: {
+      type: String,
+      default: "unavailable",
+      enum: [
+        "available",
+        "unavailable",
+        "performing pickup",
+        "performing delivery",
+      ],
+    },
+    options: {
+      _id: false,
+      zones: [String],
+      pickups: {
+        type: Boolean,
+        default: true,
+      },
+      orders: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    active: {
       type: Boolean,
       default: true,
     },
-    orders: {
-      type: Boolean,
-      default: true,
-    },
   },
-});
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+);
 
 schema.virtual("items", {
   ref: "Item",

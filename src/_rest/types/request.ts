@@ -8,8 +8,8 @@ export interface xRequest extends Request {
         _id: string;
         role: string;
         email: string;
-        client?: Schema.Types.ObjectId
-        warehouse?: Schema.Types.ObjectId;
-        deliverer?: Schema.Types.ObjectId;
+        client?: Schema.Types.ObjectId | string;
+        warehouse?: Schema.Types.ObjectId | string;
+        deliverer?: Schema.Types.ObjectId | string; 
     }
 }

@@ -1,28 +1,31 @@
 import { Model, model, Schema } from "mongoose";
 
-const schema = new Schema({
-  name: {
-    type: String,
-    required: true,
+const schema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    sku: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    image: {
+      type: String,
+    },
+    client: {
+      type: Schema.Types.ObjectId,
+      ref: "Client",
+      required: true,
+    },
   },
-  sku: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  image: {
-    type: String,
-  },
-  client: {
-    type: Schema.Types.ObjectId,
-    ref: "Client",
-    required: true,
-  },
-});
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+);
 
 schema.virtual("items", {
   ref: "Item",
