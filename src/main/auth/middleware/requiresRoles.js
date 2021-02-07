@@ -3,9 +3,10 @@ import { PermissionError } from "../../../_rest/misc/errors";
 
 /**
  * @param {string[]} roles - Array of Roles - can omit "admin"
+ * @param {boolean} [strict] - Whether to keep "admin" out
  * @yields {function} - Middleware that makes sure user is of valid role
  */
-export const requiresRoles = roles => {
+export const requiresRoles = (roles, strict) => {
   /**
    * @param {import("../../../_rest/types/request").xRequest} req
    * @param {Response} res
@@ -14,7 +15,8 @@ export const requiresRoles = roles => {
   function middleware(req, res, next) {
     req.purpose = "Access Resource";
     try {
-      if ([...roles, "admin"].includes(req.user.role)) return next();
+      if (!strict) roles.push("admin");
+      if (roles.includes(req.user.role)) return next();
       throw new PermissionError("you cannot access this resource", 401);
     } catch (error) {
       next(error);

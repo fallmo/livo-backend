@@ -15,8 +15,7 @@ export const requiresOwnerC = async (req, res, next) => {
     if (req.user.role === "admin") return next();
 
     // if user is owner of this Client account in question =>
-    if (req.user.client === req.params.id) {
-      // objectID no overlap?
+    if (req.user.client + "" === req.params.id) {
       return next();
     }
 

@@ -1,4 +1,4 @@
-import Joi, { func } from "joi";
+import Joi from "joi";
 
 /**
  * @param {any} data
