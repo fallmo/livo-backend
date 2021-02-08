@@ -12,6 +12,7 @@ import clientRoutes from "./main/clients/routes";
 import warehouseRoutes from "./main/warehouses/routes";
 import delivererRoutes from "./main/deliverers/routes";
 import pickupRoutes from "./main/pickups/routes";
+import productRoutes from "./main/products/routes";
 
 async function main() {
   config({ path: join(__dirname, "_rest", "config", "dev.env") });
@@ -33,6 +34,7 @@ async function main() {
   app.use("/warehouses", warehouseRoutes);
   app.use("/deliverers", delivererRoutes);
   app.use("/pickups", pickupRoutes);
+  app.use("/products", productRoutes);
 
   app.use(errorHandler);
 
@@ -40,3 +42,6 @@ async function main() {
 }
 
 main();
+
+// requiresValidID gets params to check
+// switch getModels to aggregate pipeline

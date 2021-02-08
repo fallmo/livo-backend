@@ -1,6 +1,6 @@
 import { RouteError } from "../../../_rest/misc/errors";
 import Pickup from "../../../_rest/models/Pickup";
-import { getDateTerm, validateDelivererID } from "../utils";
+import { createItems, getDateTerm, validateDelivererID } from "../utils";
 import { validateEditPickup } from "../validation/edit";
 
 /**
@@ -38,7 +38,14 @@ export const editPickup = async (id, data, user) => {
     pickup.status = fields.status;
     pickup.timestamps[getDateTerm(fields.status)] = new Date();
     if (fields.status === "fulfilled") {
-      // create items;
+      for (const { product, quantity } of pickup.products) {
+        await createItems(quantity, {
+          product,
+          warehouse: pickup.warehouse,
+          pickup: pickup._id,
+        });
+      }
+
       // deal with pickup fee
     }
   }

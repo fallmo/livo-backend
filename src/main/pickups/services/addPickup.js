@@ -1,5 +1,6 @@
 import Pickup from "../../../_rest/models/Pickup";
 import {
+  createItems,
   getMainWarehouse,
   validateClientID,
   validateProductID,
@@ -29,6 +30,16 @@ export const addPickup = async (data, user) => {
     timestamps,
     ...fields,
   });
+
+  if (type === "free") {
+    for (const { product, quantity } of pickup.products) {
+      await createItems(quantity, {
+        product,
+        warehouse: pickup.warehouse,
+        pickup: pickup._id,
+      });
+    }
+  }
 
   return pickup;
 };
