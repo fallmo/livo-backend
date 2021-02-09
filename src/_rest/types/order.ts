@@ -9,14 +9,14 @@ import { IProduct } from './product';
 
 
 export interface IOrder extends Document {
-    client: Schema.Types.ObjectId | IClient;
-    deliverer: Schema.Types.ObjectId | IDeliverer;
+    client: Schema.Types.ObjectId;
+    deliverer: Schema.Types.ObjectId;
     status: "draft" | "pending" |  "in progress" | "fulfilled" | "cancelled" | "problem" | "awaiting transfer";
     cost: number;
     desired_date?: Date;
     openable?: boolean;
     products: {
-        product: Schema.Types.ObjectId | IProduct,
+        product: Schema.Types.ObjectId,
         quantity: number
     }[];
     target: {

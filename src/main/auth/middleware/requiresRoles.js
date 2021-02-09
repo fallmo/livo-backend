@@ -7,6 +7,7 @@ import { PermissionError } from "../../../_rest/misc/errors";
  * @yields {function} - Middleware that makes sure user is of valid role
  */
 export const requiresRoles = (roles, strict) => {
+  validateRoles(roles);
   /**
    * @param {import("../../../_rest/types/request").xRequest} req
    * @param {Response} res
@@ -25,3 +26,15 @@ export const requiresRoles = (roles, strict) => {
 
   return middleware;
 };
+
+/**
+ * Just makes sure I didn't make a typo in the roles
+ * @param {string[]} roles
+ */
+function validateRoles(roles) {
+  for (const role of roles) {
+    if (!["client", "deliverer", "warehouse"].includes(role)) {
+      throw new Error(`Unexpected role: ${role}`);
+    }
+  }
+}

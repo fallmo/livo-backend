@@ -40,6 +40,9 @@ export const getProductItemsController = async (req, res, next) => {
   if (req.user.role === "warehouse") {
     query["warehouse"] = req.user.warehouse;
   }
+  if (req.user.role === "deliverer") {
+    query["deliverer"] = req.user.deliverer;
+  }
   try {
     const items = await getItems({ product: req.params.id, ...query });
     const resp = new HttpSuccResponse({ items }, req.purpose);

@@ -1,40 +1,30 @@
-import Item from "../../../_rest/models/Item";
+import { Types } from "mongoose";
 import Product from "../../../_rest/models/Product";
 
 export const getProducts = async (query = {}) => {
-  let products = await Product.find(
-    { ...query, warehouse: undefined, deliverer: undefined },
-    "-__v -price -client -sku"
-  );
-
   if (query.warehouse) {
-    products = (
-      await Promise.all(
-        products.map(async product => {
-          const exists = await Item.exists({
-            product: product._id,
-            warehouse: query.warehouse,
-          });
-          if (exists) return product;
-          else return undefined;
-        })
-      )
-    ).filter(p => p);
+    return await Product.aggregate()
+      .lookup({
+        from: "items",
+        localField: "_id",
+        foreignField: "product",
+        as: "items",
+      })
+      .match({ "items.warehouse": new Types.ObjectId(query.warehouse) })
+      .project({ name: 1, price: 1, sku: 1 });
   }
 
   if (query.deliverer) {
-    products = (
-      await Promise.all(
-        products.map(async product => {
-          const exists = await Item.exists({
-            product: product._id,
-            deliverer: query.deliverer,
-          });
-          if (exists) return product;
-          else return undefined;
-        })
-      )
-    ).filter(p => p);
+    return await Product.aggregate()
+      .lookup({
+        from: "items",
+        localField: "_id",
+        foreignField: "product",
+        as: "items",
+      })
+      .match({ "items.deliverer": new Types.ObjectId(query.deliverer) })
+      .project({ name: 1, price: 1, sku: 1 });
   }
-  return products;
+
+  return await Product.find(query, "name price sku");
 };

@@ -1,4 +1,26 @@
-import { Model, model, Schema, connect } from "mongoose";
+import { model, Schema, connect } from "mongoose";
+
+const schema2 = new Schema({
+  email: {
+    type: String,
+    required: true,
+  },
+  device: {
+    type: String,
+    required: true,
+  },
+  ip: {
+    type: String,
+    required: true,
+  },
+  date_created: {
+    type: Date,
+    default: Date.now,
+  },
+  date_accessed: Date,
+});
+
+const Session = model("Session", schema2);
 
 const schema = new Schema(
   {
@@ -52,26 +74,20 @@ async function db() {
 async function test() {
   await db();
 
-  //   const item = await Item.aggregate()
-  //     .lookup({
-  //       from: "products",
-  //       localField: "product",
-  //       foreignField: "_id",
-  //       as: "product",
-  //     })
-  //     .unwind({ path: "$product" })
-  //     .match({ "product.price": 750 });
-
-  //   console.log(item);
-  const products = await Product.aggregate().lookup({
-    from: "items",
-    localField: "_id",
-    foreignField: "product",
-    as: "items",
-  });
-  // .unwind({ path: "$items" })
-  // .match({ "items.order": { $exists: false } });
-  console.log(products);
+  const product = await Product.findOne({}, "test");
+  console.log(product.test);
 }
 
 test();
+
+//   const item = await Item.aggregate()
+//     .lookup({
+//       from: "products",
+//       localField: "product",
+//       foreignField: "_id",
+//       as: "product",
+//     })
+//     .unwind({ path: "$product" })
+//     .match({ "product.price": 750 });
+
+//   console.log(item);

@@ -37,7 +37,7 @@ router.post(
 
 router.patch(
   "/:id",
-  requiresRoles(["warehouse", "deliverer"], true),
+  requiresRoles(["warehouse", "deliverer", "client"], true),
   requiresRelatedPi,
   editPickupController
 ); // edit pickup deliverer or status;

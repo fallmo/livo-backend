@@ -2,7 +2,12 @@ import { Schema, model, Model } from "mongoose";
 
 const schema = new Schema(
   {
-    warehouse: {
+    from_warehouse: {
+      type: Schema.Types.ObjectId,
+      ref: "Warehouse",
+      required: true,
+    },
+    to_warehouse: {
       type: Schema.Types.ObjectId,
       ref: "Warehouse",
       required: true,
@@ -10,7 +15,7 @@ const schema = new Schema(
     status: {
       type: String,
       enum: ["pending", "in transit", "arrived", "discarded"],
-      required: true,
+      default: "pending",
     },
     timestamps: {
       _id: false,

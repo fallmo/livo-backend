@@ -13,6 +13,7 @@ import warehouseRoutes from "./main/warehouses/routes";
 import delivererRoutes from "./main/deliverers/routes";
 import pickupRoutes from "./main/pickups/routes";
 import productRoutes from "./main/products/routes";
+import transferRoutes from "./main/transfers/routes";
 
 async function main() {
   config({ path: join(__dirname, "_rest", "config", "dev.env") });
@@ -35,6 +36,7 @@ async function main() {
   app.use("/deliverers", delivererRoutes);
   app.use("/pickups", pickupRoutes);
   app.use("/products", productRoutes);
+  app.use("/transfers", transferRoutes);
 
   app.use(errorHandler);
 

@@ -54,21 +54,23 @@ const schema = new Schema(
     target: {
       _id: false,
       required: true,
-      name: {
-        type: String,
-        required: true,
-      },
-      phone: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        required: true,
-      },
-      zone: {
-        type: String,
-        required: true,
+      type: {
+        name: {
+          type: String,
+          required: true,
+        },
+        phone: {
+          type: String,
+          required: true,
+        },
+        city: {
+          type: String,
+          required: true,
+        },
+        zone: {
+          type: String,
+          required: true,
+        },
       },
     },
     timestamps: {

@@ -12,7 +12,6 @@ export const getItems = async (query = {}) => {
       })
       .unwind({ path: "$product" })
       .match({ "product.client": new Types.ObjectId(query.client) });
-  } else {
-    return await Item.find({ ...query, client: undefined }, "-__v -pickup");
   }
+  return await Item.find(query, "-__v -pickup");
 };

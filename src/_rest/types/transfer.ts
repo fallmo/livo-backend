@@ -6,24 +6,23 @@ import { IItem } from './item';
 import { IOrder } from './order';
 import { IPayment } from './payment';
 import { IProduct } from './product';
-import { IWarehouse } from './warehouse';
 
 
 export interface ITransfer extends Document {
+    from_city: string;
+    to_city: string;
     client: Schema.Types.ObjectId | IClient;
-    from_warehouse: Schema.Types.ObjectId | IWarehouse;
-    to_warehouse: Schema.Types.ObjectId | IWarehouse;
-    status: "pending" | "in progress" | "fulfilled";
-    container: Schema.Types.ObjectId | IContainer;
+    status: "pending" | "in progress" | "fulfilled"; // virtual
+    container?: Schema.Types.ObjectId | IContainer;
     products: {
         product: Schema.Types.ObjectId | IProduct,
         quantity: number
     }[];
     timestamps: {
         requested: Date;
-        started?: Date;
-        fulfilled?: Date;
-        cancelled?: Date;
+        started?: Date; // virtual
+        fulfilled?: Date; // virtual
+        cancelled?: Date; // virtual
     };
     order?: Schema.Types.ObjectId | IOrder;
     items: IItem[]; // virtual

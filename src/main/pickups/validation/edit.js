@@ -33,6 +33,22 @@ function getSchema(role, status) {
           .valid(...valid)
           .required(),
       });
+    case "client":
+      if (status !== "pending") {
+        throw new ClientError(`Pickup with status: ${status} cannot be edited`);
+      }
+      return Joi.object({
+        desired_date: Joi.string().optional(),
+        products: Joi.array()
+          .items(
+            Joi.object({
+              product: Joi.string().required(),
+              quantity: Joi.number().required(),
+            })
+          )
+          .min(1)
+          .optional(),
+      }).min(1);
     default:
       throw new Error(`Was not expecting role to edit pickup: ${role}`);
   }

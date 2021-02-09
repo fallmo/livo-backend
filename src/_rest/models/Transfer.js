@@ -2,20 +2,13 @@ import { model, Model, Schema } from "mongoose";
 
 const schema = new Schema(
   {
-    from_warehouse: {
-      type: Schema.Types.ObjectId,
-      ref: "Warehouse",
-      required: true,
-    },
-    to_warehouse: {
-      type: Schema.Types.ObjectId,
-      ref: "Warehouse",
-      required: true,
-    },
-    status: {
+    from_city: {
       type: String,
       required: true,
-      enum: ["pending", "in progress", "fulfilled", "cancelled"],
+    },
+    to_city: {
+      type: String,
+      required: true,
     },
     client: {
       type: Schema.Types.ObjectId,
@@ -53,9 +46,6 @@ const schema = new Schema(
         type: Date,
         default: Date.now,
       },
-      started: Date,
-      fulfilled: Date,
-      cancelled: Date,
     },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }

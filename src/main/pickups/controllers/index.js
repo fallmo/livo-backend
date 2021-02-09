@@ -15,21 +15,21 @@ export const getPickupsController = async (req, res, next) => {
   req.purpose = "Get List of Pickups";
   const query = {};
   const user = req.user;
-  try {
-    if (user.role === "warehouse") {
-      query["warehouse"] = user.warehouse;
-    }
+  if (user.role === "warehouse") {
+    query["warehouse"] = user.warehouse;
+  }
 
-    if (user.role === "client") {
-      query["client"] = user.client;
-    }
-    if (user.role === "deliverer") {
-      query["type"] = "paid"; // no need to see free pickups
-      query["$or"] = [
-        { deliverer: { $exists: false } }, // pickups with no deliverer
-        { deliverer: user.deliverer }, // pickups where he's the deliverer
-      ];
-    }
+  if (user.role === "client") {
+    query["client"] = user.client;
+  }
+  if (user.role === "deliverer") {
+    query["type"] = "paid"; // no need to see free pickups
+    query["$or"] = [
+      { deliverer: { $exists: false } }, // pickups with no deliverer
+      { deliverer: user.deliverer }, // pickups where he's the deliverer
+    ];
+  }
+  try {
     const pickups = await getPickups(query);
     const resp = new HttpSuccResponse({ pickups }, req.purpose);
     return res.status(200).json(resp.payload);
