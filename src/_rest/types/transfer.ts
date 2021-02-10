@@ -12,7 +12,7 @@ export interface ITransfer extends Document {
     from_city: string;
     to_city: string;
     client: Schema.Types.ObjectId | IClient;
-    status: "pending" | "in progress" | "fulfilled"; // virtual
+    status: "pending" | "in progress" | "fulfilled" | "cancelled";
     container?: Schema.Types.ObjectId | IContainer;
     products: {
         product: Schema.Types.ObjectId | IProduct,
@@ -20,9 +20,9 @@ export interface ITransfer extends Document {
     }[];
     timestamps: {
         requested: Date;
-        started?: Date; // virtual
-        fulfilled?: Date; // virtual
-        cancelled?: Date; // virtual
+        started?: Date; 
+        fulfilled?: Date; 
+        cancelled?: Date; 
     };
     order?: Schema.Types.ObjectId | IOrder;
     items: IItem[]; // virtual

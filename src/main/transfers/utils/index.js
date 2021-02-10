@@ -3,9 +3,9 @@ import { ClientError } from "../../../_rest/misc/errors";
 import Container from "../../../_rest/models/Container";
 import Product from "../../../_rest/models/Product";
 import Order from "../../../_rest/models/Order";
+import Item from "../../../_rest/models/Item";
 
 /**
- *
  * @param {*} id
  * @param {string} origin
  * @param {string} destination
@@ -71,4 +71,17 @@ export const validateOrderID = async (id, client) => {
     }
   }
   throw new ClientError(`Order: ${id} does not exist`);
+};
+
+/**
+ * @param {any} id - Transfer ID
+ */
+export const freeItems = async id => {
+  const items = await Item.find({ transfer: id }, "transfer status");
+  console.log(items);
+  for (const item of items) {
+    item.transfer = undefined;
+    item.status = "available";
+    await item.save();
+  }
 };

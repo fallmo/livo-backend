@@ -3,6 +3,7 @@ import Warehouse from "../../../_rest/models/Warehouse";
 
 export const getTransfers = async (query = {}) => {
   if (query.warehouse) {
+    console.log(query.warehouse);
     const warehouse = await Warehouse.findOne({ _id: query.warehouse }, "city");
     const open_transfers = await Transfer.find(
       { "container": { "$exists": false }, "from_city": warehouse.city },

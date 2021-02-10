@@ -1,5 +1,6 @@
 import { ClientError, RouteError } from "../../../../_rest/misc/errors";
 import Container from "../../../../_rest/models/Container";
+import { ensureTransfersReady, updateTransfers } from "../utils";
 import { getDateTerm, validateWarehouseID } from "../utils";
 import { validateEditContainer } from "../validation/edit";
 
@@ -34,8 +35,16 @@ export const editContainer = async (id, data, warehouse) => {
   }
 
   if (fields.status) {
+    if (fields.status === "in transit") {
+      await ensureTransfersReady(id);
+    }
     container.status = fields.status;
+    await updateTransfers(id, fields.status);
+
+    /* 
+      Update Timestamps with middleware 
     container.timestamps[getDateTerm(fields.status)] = new Date();
+    */
   }
 
   await container.save();

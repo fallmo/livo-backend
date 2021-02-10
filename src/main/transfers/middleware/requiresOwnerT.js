@@ -10,18 +10,10 @@ import Warehouse from "../../../_rest/models/Warehouse";
  * @param {Response} res
  * @param {NextFunction} next
  */
-export const requiresRelatedT = async (req, res, next) => {
+export const requiresOwnerT = async (req, res, next) => {
   req.purpose = "Prove Rights to Transfer";
   try {
     if (req.user.role === "admin") return next();
-
-    if (req.user.role === "client") {
-      const exists = await Transfer.exists({
-        _id: req.params.id,
-        client: req.user.client,
-      });
-      if (exists) return next();
-    }
 
     if (req.user.role === "warehouse") {
       const transfer = await Transfer.findOne(
@@ -30,12 +22,6 @@ export const requiresRelatedT = async (req, res, next) => {
       ).populate("container", "from_warehouse to_warehouse");
 
       if (transfer) {
-        // @ts-ignore
-        if (transfer.container?.to_warehouse + "" === req.user.warehouse) {
-          // if this is receiving warehouse
-          return next();
-        }
-
         // @ts-ignore
         if (transfer.container?.from_warehouse + "" === req.user.warehouse) {
           // if this is sender warehouse

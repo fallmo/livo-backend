@@ -1,6 +1,9 @@
 import { isValidObjectId } from "mongoose";
+import Transfer from "../../../../_rest/models/Transfer";
+import Product from "../../../../_rest/models/Product";
 import { ClientError } from "../../../../_rest/misc/errors";
 import Warehouse from "../../../../_rest/models/Warehouse";
+import { freeItems } from "../../utils";
 
 /**
  * @param {any} to_warehouse - ID of destination warehouse
@@ -42,5 +45,74 @@ export const getDateTerm = status => {
       return "discarded";
     default:
       throw new Error(`Unexpected Container status: ${status}`);
+  }
+};
+
+/**
+ * @param {any} id - ID of Container
+ */
+export const ensureTransfersReady = async id => {
+  const transfers = await Transfer.find(
+    { container: id },
+    "products items"
+  ).populate("items", "product");
+  if (!transfers) {
+    throw new ClientError(`Transfers must be added to container`);
+  }
+  for (const transfer of transfers) {
+    for (const { product, quantity } of transfer.products) {
+      await ensureProductQuantity(product, quantity, transfer.items);
+    }
+  }
+};
+
+/**
+ * @param {any} product - The Product ID Requested
+ * @param {number} quantity - The Quantity Requested
+ * @param {any[]} items - The Items Currently
+ */
+const ensureProductQuantity = async (product, quantity, items) => {
+  console.log(product, items);
+  const total = items.reduce((acc, curr) => {
+    if (curr.product + "" === product + "") return acc + 1;
+    else return acc + 0;
+  }, 0);
+
+  if (total !== quantity) {
+    const { name } = await Product.findOne({ _id: product }, "name").lean();
+    throw new ClientError(
+      `Requested ${quantity} items of ${name}; instead got ${total}`
+    );
+  }
+};
+
+/**
+ * Updates Transfer Statuses to Match Container's
+ * @param {any} id - ID of container
+ * @param {string} status - Status of Container
+ */
+export const updateTransfers = async (id, status) => {
+  const transfers = await Transfer.find({ container: id }, "status");
+  const transfer_status = matchContainerStatus(status);
+  for (const transfer of transfers) {
+    //@ts-ignore
+    transfer.status = transfer_status;
+    await transfer.save();
+    await freeItems(transfer._id);
+  }
+};
+
+const matchContainerStatus = status => {
+  switch (status) {
+    case "pending":
+      return "pending";
+    case "in transit":
+      return "in progress";
+    case "arrived":
+      return "fulfilled";
+    case "discarded":
+      return "pending";
+    default:
+      throw new Error(`Unexpected Container Status: ${status}`);
   }
 };

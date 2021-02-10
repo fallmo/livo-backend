@@ -7,13 +7,16 @@ import {
   getTransferController,
   getTransfersController,
 } from "../controllers";
+import { requiresOwnerT } from "../middleware/requiresOwnerT";
 import { requiresRelatedT } from "../middleware/requiresRelatedT";
 import containerRoutes from "../_containers/routes";
+import itemRoutes from "../_items/routes";
 
 //base => /transfers
 const router = Router();
 router.use(requiresAuth);
 router.use(containerRoutes);
+router.use(itemRoutes);
 
 router.get("/", requiresRoles(["warehouse", "client"]), getTransfersController); // get list of transfers;
 
@@ -27,7 +30,7 @@ router.get(
 router.patch(
   "/:id",
   requiresRoles(["warehouse"]),
-  requiresRelatedT,
+  requiresOwnerT,
   editTransferController
 ); // edit a transfer;
 

@@ -23,6 +23,7 @@ const schema = new Schema(
       enum: [
         "available",
         "undergoing delivery",
+        "delivered",
         "undergoing transfer",
         "with deliverer",
       ],

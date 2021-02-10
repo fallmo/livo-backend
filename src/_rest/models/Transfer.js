@@ -10,6 +10,11 @@ const schema = new Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "in progress", "fulfilled", "cancelled"],
+    },
     client: {
       type: Schema.Types.ObjectId,
       ref: "Client",
@@ -46,6 +51,9 @@ const schema = new Schema(
         type: Date,
         default: Date.now,
       },
+      started: Date,
+      fulfilled: Date,
+      cancelled: Date,
     },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
