@@ -12,7 +12,7 @@ import { validateEditPickup } from "../validation/edit";
 export const editPickup = async (id, data, user) => {
   const pickup = await Pickup.findOne(
     { _id: id },
-    "deliverer status timestamps"
+    "deliverer status timestamps desired_date"
   );
   if (!pickup) {
     throw new RouteError(`/pickups/${id}`);
@@ -30,6 +30,10 @@ export const editPickup = async (id, data, user) => {
       // @ts-ignore
       pickup.deliverer = undefined;
     }
+  }
+
+  if (fields.desired_date) {
+    pickup.desired_date = fields.desired_date;
   }
 
   if (fields.status) {

@@ -7,6 +7,7 @@ import {
   getTransferController,
   getTransfersController,
 } from "../controllers";
+import { requiresRelatedT } from "../middleware/requiresRelatedT";
 import containerRoutes from "../_containers/routes";
 
 //base => /transfers
@@ -19,10 +20,16 @@ router.get("/", requiresRoles(["warehouse", "client"]), getTransfersController);
 router.get(
   "/:id",
   requiresRoles(["warehouse", "client"]),
+  requiresRelatedT,
   getTransferController
 ); // get a transfer
 
-router.patch("/:id", requiresRoles(["warehouse"]), editTransferController); // edit a transfer;
+router.patch(
+  "/:id",
+  requiresRoles(["warehouse"]),
+  requiresRelatedT,
+  editTransferController
+); // edit a transfer;
 
 router.post("/", requiresRoles(["client"], true), addTransferController); // add a transfer
 

@@ -6,6 +6,7 @@ import {
   getContainerController,
   getContainersController,
 } from "../controllers";
+import { requiresRelatedCo } from "../middleware/requiresRelatedCo";
 
 // base => /transfers
 const router = Router();
@@ -19,12 +20,14 @@ router.get(
 router.get(
   "/containers/:id",
   requiresRoles(["warehouse"]),
+  requiresRelatedCo,
   getContainerController
 ); // get one container;
 
 router.patch(
   "/containers/:id",
   requiresRoles(["warehouse"], true),
+  requiresRelatedCo,
   editContainerController
 ); // get one container;
 

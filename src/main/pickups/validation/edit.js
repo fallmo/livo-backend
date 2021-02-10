@@ -6,7 +6,7 @@ import { ClientError } from "../../../_rest/misc/errors";
  * @param {string} role - Whether its a deliverer or a warehouse
  * @param {string} status  - Current Pickup Status
  *
- * @returns {Promise<{status: string, deliverer: string}>}
+ * @returns {Promise<{status: string, deliverer: string, desired_date: string }>}
  */
 export const validateEditPickup = async (data, role, status) => {
   const schema = getSchema(role, status);
@@ -24,15 +24,17 @@ function getSchema(role, status) {
         );
       }
       return Joi.object({
-        deliverer: Joi.string().allow("").required(),
-      });
+        deliverer: Joi.string().allow("").optional(),
+        desired_date: Joi.string().optional(),
+      }).min(1);
     case "deliverer":
       const valid = getStatus(status);
       return Joi.object({
         status: Joi.string()
           .valid(...valid)
-          .required(),
-      });
+          .optional(),
+        desired_date: Joi.string().optional(),
+      }).min(1);
     case "client":
       if (status !== "pending") {
         throw new ClientError(`Pickup with status: ${status} cannot be edited`);

@@ -47,3 +47,5 @@ main();
 
 // requiresValidID gets params to check
 // switch getModels to aggregate pipeline
+// need to validate dates to make uniform
+// change requiresAuth so that it informs client side if token expired
