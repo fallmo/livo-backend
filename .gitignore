@@ -1,4 +1,5 @@
 node_modules
 files.py
+sandbox.js
 test.js
 *.env

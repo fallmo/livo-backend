@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
 import { HttpSuccResponse } from "../../../_rest/misc/http";
 import { addTransfer } from "../services/addTransfer";
+import { delTransfer } from "../services/delTransfer";
 import { editTransfer } from "../services/editTransfer";
 import { getTransfer } from "../services/getTransfer";
 import { getTransfers } from "../services/getTransfers";
@@ -71,8 +72,25 @@ export const editTransferController = async (req, res, next) => {
   req.purpose = "Get a Transfer";
   const id = req.params.id;
   const body = req.body;
+  const warehouse = req.user.warehouse;
   try {
-    const transfer = await editTransfer(id, body);
+    const transfer = await editTransfer(id, body, warehouse);
+    const resp = new HttpSuccResponse({ transfer }, req.purpose);
+    return res.status(200).json(resp.payload);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @param {import("../../../_rest/types/request").xRequest} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ */
+export const delTransferController = async (req, res, next) => {
+  req.purpose = "Cancel a Transfer";
+  try {
+    const transfer = await delTransfer(req.params.id);
     const resp = new HttpSuccResponse({ transfer }, req.purpose);
     return res.status(200).json(resp.payload);
   } catch (err) {

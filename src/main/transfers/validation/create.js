@@ -12,7 +12,6 @@ const schema = Joi.object({
     )
     .min(1)
     .required(),
-  order: Joi.string().optional(),
 });
 
 export const validateTransfer = async data => {

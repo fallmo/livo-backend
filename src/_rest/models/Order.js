@@ -13,7 +13,7 @@ const schema = new Schema(
     },
     status: {
       type: String,
-      required: true,
+      default: "draft",
       enum: [
         "draft",
         "pending",

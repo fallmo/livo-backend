@@ -13,7 +13,7 @@ import { requiresOwnerW } from "../middleware/requiresOwnerW";
 const router = Router();
 router.use(requiresAuth);
 
-router.get("/", requiresRoles([]), getWarehousesController); // get list of warehouses;
+router.get("/", requiresRoles(["warehouse"]), getWarehousesController); // get list of warehouses;
 
 router.get(
   "/:id",

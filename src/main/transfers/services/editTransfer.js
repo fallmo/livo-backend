@@ -3,7 +3,7 @@ import Transfer from "../../../_rest/models/Transfer";
 import { freeItems, validateContainerID } from "../utils";
 import { validateEditTransfer } from "../validation/edit";
 
-export const editTransfer = async (id, data) => {
+export const editTransfer = async (id, data, warehouse) => {
   const transfer = await Transfer.findOne(
     { _id: id },
     "container from_city to_city status"
@@ -18,14 +18,14 @@ export const editTransfer = async (id, data) => {
   }
 
   const fields = await validateEditTransfer(data);
-
   // doing it this way just incase I add more editable fields and container isnt required
   if (typeof fields.container !== "undefined") {
     if (fields.container) {
       await validateContainerID(
         fields.container,
         transfer.from_city,
-        transfer.to_city
+        transfer.to_city,
+        warehouse
       );
 
       transfer.container = fields.container;

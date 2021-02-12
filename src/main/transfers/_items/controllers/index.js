@@ -69,8 +69,9 @@ export const addTransferItemController = async (req, res, next) => {
   req.purpose = "Add Item to Transfer";
   const id = req.params.id;
   const body = req.body;
+  const warehouse = req.user.warehouse;
   try {
-    const item = await addItem(id, body);
+    const item = await addItem(id, body, warehouse);
     const resp = new HttpSuccResponse({ item }, req.purpose);
     return res.status(201).json(resp.payload);
   } catch (err) {

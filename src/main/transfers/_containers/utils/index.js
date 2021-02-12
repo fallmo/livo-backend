@@ -4,6 +4,8 @@ import Product from "../../../../_rest/models/Product";
 import { ClientError } from "../../../../_rest/misc/errors";
 import Warehouse from "../../../../_rest/models/Warehouse";
 import { freeItems } from "../../utils";
+import Item from "../../../../_rest/models/Item";
+import Order from "../../../../_rest/models/Order";
 
 /**
  * @param {any} to_warehouse - ID of destination warehouse
@@ -33,21 +35,6 @@ export const validateWarehouseID = async (to_warehouse, from_warehouse) => {
   return;
 };
 
-export const getDateTerm = status => {
-  switch (status) {
-    case "pending":
-      return "ignore";
-    case "in transit":
-      return "sent";
-    case "arrived":
-      return "arrived";
-    case "discarded":
-      return "discarded";
-    default:
-      throw new Error(`Unexpected Container status: ${status}`);
-  }
-};
-
 /**
  * @param {any} id - ID of Container
  */
@@ -56,9 +43,11 @@ export const ensureTransfersReady = async id => {
     { container: id },
     "products items"
   ).populate("items", "product");
-  if (!transfers) {
+
+  if (!transfers?.length) {
     throw new ClientError(`Transfers must be added to container`);
   }
+
   for (const transfer of transfers) {
     for (const { product, quantity } of transfer.products) {
       await ensureProductQuantity(product, quantity, transfer.items);
@@ -72,7 +61,6 @@ export const ensureTransfersReady = async id => {
  * @param {any[]} items - The Items Currently
  */
 const ensureProductQuantity = async (product, quantity, items) => {
-  console.log(product, items);
   const total = items.reduce((acc, curr) => {
     if (curr.product + "" === product + "") return acc + 1;
     else return acc + 0;
@@ -90,15 +78,29 @@ const ensureProductQuantity = async (product, quantity, items) => {
  * Updates Transfer Statuses to Match Container's
  * @param {any} id - ID of container
  * @param {string} status - Status of Container
+ * @param {any} to_warehouse - Destination of Container
  */
-export const updateTransfers = async (id, status) => {
-  const transfers = await Transfer.find({ container: id }, "status");
+export const updateTransfers = async (id, status, to_warehouse) => {
+  const transfers = await Transfer.find({ container: id }, "status order");
   const transfer_status = matchContainerStatus(status);
+  const done = transfer_status === "fulfilled";
+  const deleted = status === "discarded";
   for (const transfer of transfers) {
-    //@ts-ignore
     transfer.status = transfer_status;
+    if (deleted) {
+      transfer.container = undefined;
+      await freeItems(transfer._id);
+    }
     await transfer.save();
-    await freeItems(transfer._id);
+    if (done) {
+      await freeItems(transfer._id, to_warehouse);
+      if (transfer.order) {
+        await Order.findByIdAndUpdate(
+          { _id: transfer.order },
+          { status: "pending" }
+        );
+      }
+    }
   }
 };
 

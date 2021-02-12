@@ -4,6 +4,7 @@ import { getContainer } from "../services/getContainer";
 import { addContainer } from "../services/addContainer";
 import { getContainers } from "../services/getContainers";
 import { editContainer } from "../services/editContainer";
+import { delContainer } from "../services/delContainer";
 
 /**
  * @param {import("../../../../_rest/types/request").xRequest} req
@@ -76,6 +77,21 @@ export const editContainerController = async (req, res, next) => {
   const warehouse = req.user.warehouse;
   try {
     const container = await editContainer(id, body, warehouse);
+    const resp = new HttpSuccResponse({ container }, req.purpose);
+    return res.status(200).json(resp.payload);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @param {import("../../../../_rest/types/request").xRequest} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ */
+export const delContainerController = async (req, res, next) => {
+  try {
+    const container = await delContainer(req.params.id);
     const resp = new HttpSuccResponse({ container }, req.purpose);
     return res.status(200).json(resp.payload);
   } catch (err) {

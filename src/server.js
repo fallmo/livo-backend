@@ -52,3 +52,5 @@ main();
 // change requiresAuth so that it informs client side if token expired
 // for pickups transfers etc, don't let client duplicate product
 // update timestamps with middleware
+// allow warehouse to make any item available
+// check to make sure warehouse cannot add item from another warehouse to transfer

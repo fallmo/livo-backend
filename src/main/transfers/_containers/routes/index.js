@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { requiresRoles } from "../../../auth/middleware/requiresRoles";
+import { requiresOwnerCo } from "../middleware/requiresOwnerCo";
 import {
   addContainerController,
+  delContainerController,
   editContainerController,
   getContainerController,
   getContainersController,
@@ -31,6 +33,12 @@ router.patch(
   editContainerController
 ); // get one container;
 
+router.delete(
+  "/containers/:id",
+  requiresRoles(["warehouse"]),
+  requiresOwnerCo,
+  delContainerController
+);
 router.post(
   "/containers",
   requiresRoles(["warehouse"], true),

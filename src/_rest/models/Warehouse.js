@@ -65,10 +65,10 @@ schema.virtual("deliverers", {
   foreignField: "warehouse",
 });
 
-schema.virtual("balance").get(() => {
-  // add the payments;;
-  return 0;
-});
+// schema.virtual("balance").get(() => {
+//   // add the payments;;
+//   return 0;
+// });
 
 /**
  * @type {Model<import("../types/warehouse").IWarehouse, {}>}

@@ -1,16 +1,23 @@
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, Types } from "mongoose";
 import { ClientError } from "../../../_rest/misc/errors";
 import Container from "../../../_rest/models/Container";
 import Product from "../../../_rest/models/Product";
 import Order from "../../../_rest/models/Order";
 import Item from "../../../_rest/models/Item";
+import Warehouse from "../../../_rest/models/Warehouse";
 
 /**
- * @param {*} id
- * @param {string} origin
- * @param {string} destination
+ * @param {*} id - Container ID
+ * @param {string} origin - Transfer From City
+ * @param {string} destination - Transfer To City
+ * @param {any} warehouse - Warehouse making request
  */
-export const validateContainerID = async (id, origin, destination) => {
+export const validateContainerID = async (
+  id,
+  origin,
+  destination,
+  warehouse
+) => {
   if (!isValidObjectId(id)) {
     throw new ClientError(`Container id: ${id} is not valid`);
   }
@@ -20,6 +27,9 @@ export const validateContainerID = async (id, origin, destination) => {
 
   if (!container) {
     throw new ClientError(`Container: ${id} does not exist`);
+  }
+  if (container.from_warehouse._id + "" !== warehouse) {
+    throw new ClientError(`Container does not belong to warehouse`);
   }
 
   if (container.status !== "pending") {
@@ -46,42 +56,61 @@ export const validateContainerID = async (id, origin, destination) => {
   return; //unecessary
 };
 
-export const validateProductID = async (id, client) => {
-  if (isValidObjectId(id)) {
-    const product = await Product.findOne({ _id: id }, "client").lean();
-    if (product) {
-      if ("" + product.client === "" + client) return;
-      throw new ClientError(`Product: ${id} does not belong to the client`);
-    }
+export const validateProductID = async (
+  client_id,
+  product_id,
+  quantity,
+  city
+) => {
+  if (!isValidObjectId(product_id)) {
+    throw new ClientError(`Product: ${product_id} is not valid`);
   }
-  throw new ClientError(`Product: ${id} does not exist`);
-};
 
-export const validateOrderID = async (id, client) => {
-  if (isValidObjectId(id)) {
-    const order = await Order.findOne({ _id: id }, "client status").lean();
-    if (order) {
-      if ("" + order.client === "" + client) {
-        if (order.status === "awaiting transfer") return;
-        throw new ClientError(
-          `Order with status: ${order.status} cannot be added to transfer`
-        );
-      }
-      throw new ClientError(`Order: ${id} does not belong to the client`);
-    }
+  const product = await Product.findOne(
+    { _id: product_id },
+    "name client price"
+  ).lean();
+
+  if (!product) {
+    throw new ClientError(`Product ${product_id} does not exist`);
   }
-  throw new ClientError(`Order: ${id} does not exist`);
+
+  if (product.client + "" !== client_id) {
+    throw new ClientError(`Product ${product_id} does not belong to client`);
+  }
+
+  const items = await Item.aggregate()
+    .match({
+      product: new Types.ObjectId(product_id),
+      status: "available",
+    })
+    .lookup({
+      from: "warehouses",
+      localField: "warehouse",
+      foreignField: "_id",
+      as: "warehouse",
+    })
+    .unwind({ path: "$warehouse" })
+    .match({ "warehouse.city": city })
+    .count("count");
+
+  const sufficient = items.length && items[0].count >= quantity;
+  if (sufficient) return;
+  throw new ClientError(
+    `Insufficient stock of ${product.name} in city ${city}`
+  );
 };
 
 /**
  * @param {any} id - Transfer ID
+ * @param {string} [new_warehouse] - New Warehouse (after transfer)
  */
-export const freeItems = async id => {
+export const freeItems = async (id, new_warehouse) => {
   const items = await Item.find({ transfer: id }, "transfer status");
-  console.log(items);
   for (const item of items) {
     item.transfer = undefined;
     item.status = "available";
+    if (new_warehouse) item.warehouse = new_warehouse;
     await item.save();
   }
 };

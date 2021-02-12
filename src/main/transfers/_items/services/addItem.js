@@ -6,8 +6,9 @@ import { validateAddItem } from "../validation/add";
 /**
  * @param {*} id - Transfer ID
  * @param {*} data - Req Body
+ * @param {*} warehouse - The warehouse adding an item
  */
-export const addItem = async (id, data) => {
+export const addItem = async (id, data, warehouse) => {
   const transfer = await Transfer.findOne(
     { _id: id },
     "container products items status"
@@ -31,7 +32,8 @@ export const addItem = async (id, data) => {
   const item = await validateItemID(
     fields.item,
     transfer.products,
-    transfer.items
+    transfer.items,
+    warehouse
   );
 
   item.transfer = id;

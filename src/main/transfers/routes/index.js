@@ -3,6 +3,7 @@ import { requiresAuth } from "../../auth/middleware/requiresAuth";
 import { requiresRoles } from "../../auth/middleware/requiresRoles";
 import {
   addTransferController,
+  delTransferController,
   editTransferController,
   getTransferController,
   getTransfersController,
@@ -29,11 +30,20 @@ router.get(
 
 router.patch(
   "/:id",
-  requiresRoles(["warehouse"]),
+  requiresRoles(["warehouse"], true),
   requiresOwnerT,
   editTransferController
 ); // edit a transfer;
 
+router.delete(
+  "/:id",
+  requiresRoles(["warehouse", "client"]),
+  requiresOwnerT,
+  delTransferController
+);
+
 router.post("/", requiresRoles(["client"], true), addTransferController); // add a transfer
 
 export default router;
+
+function controller(req, res) {}
