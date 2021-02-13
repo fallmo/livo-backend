@@ -6,7 +6,9 @@ export const addWarehouse = async data => {
   const fields = await validateWarehouse(data);
 
   await validateWarehouseName(fields.name);
-  await validateWarehouseMain();
+  if (fields.main) {
+    await validateWarehouseMain();
+  }
 
   const warehouse = await Warehouse.create(fields);
 

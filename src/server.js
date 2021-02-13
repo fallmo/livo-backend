@@ -14,6 +14,7 @@ import delivererRoutes from "./main/deliverers/routes";
 import pickupRoutes from "./main/pickups/routes";
 import productRoutes from "./main/products/routes";
 import transferRoutes from "./main/transfers/routes";
+import orderRoutes from "./main/orders/routes";
 
 async function main() {
   config({ path: join(__dirname, "_rest", "config", "dev.env") });
@@ -37,6 +38,7 @@ async function main() {
   app.use("/pickups", pickupRoutes);
   app.use("/products", productRoutes);
   app.use("/transfers", transferRoutes);
+  app.use("/orders", orderRoutes);
 
   app.use(errorHandler);
 
@@ -54,3 +56,6 @@ main();
 // update timestamps with middleware
 // allow warehouse to make any item available
 // check to make sure warehouse cannot add item from another warehouse to transfer
+// items can be taken from other warehouses for transfers etc..
+// validateDelivererID (param [override]) -> check deliverer.options for self assignemnt, but override for warehouse assignment
+// query for getOrders -> options

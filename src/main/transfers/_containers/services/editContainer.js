@@ -40,11 +40,6 @@ export const editContainer = async (id, data, warehouse) => {
     }
     container.status = fields.status;
     await updateTransfers(id, fields.status, container.to_warehouse);
-
-    /* 
-      Update Timestamps with middleware 
-    container.timestamps[getDateTerm(fields.status)] = new Date();
-    */
   }
 
   await container.save();

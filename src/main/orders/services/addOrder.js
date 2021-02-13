@@ -1,19 +1,19 @@
-import { validateProductID } from "../utils";
-import { validateOrder } from "../validation/create";
 import Order from "../../../_rest/models/Order";
+import { lightValidateProductID, validateProductID } from "../utils";
+import { validateOrder } from "../validation/create";
 
 export const addOrder = async (data, client) => {
   const fields = await validateOrder(data);
-  const calculatedCost = await fields.products.reduce(async (sum, curr) => {
-    const price = await validateProductID(curr.product);
-    return sum + price * curr.quantity;
-  }, 0);
+  let calculatedCost = 0;
 
-  const order = await Order.create({
-    ...fields,
-    client,
-    cost: fields.cost || calculatedCost,
-  });
+  for (const { product, quantity } of fields.products) {
+    const price = await lightValidateProductID(product, client);
+    calculatedCost += price * quantity;
+  }
+
+  const cost = fields.cost || calculatedCost;
+
+  const order = await Order.create({ ...fields, cost, client });
 
   return order;
 };

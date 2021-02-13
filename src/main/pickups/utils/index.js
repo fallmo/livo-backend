@@ -40,27 +40,6 @@ export const validateDelivererID = async id => {
 };
 
 /**
- * Finds equivalent timestamp key for status
- * @param {string} status - Status of Pickup
- */
-export const getDateTerm = status => {
-  switch (status) {
-    case "in progress":
-      return "started";
-    case "fulfilled":
-      return "fulfilled";
-    case "cancelled":
-      return "cancelled";
-    case "pending":
-      return "ignore"; // dont set timestamp for this
-    case "problem":
-      return "ignore"; // dont set timestamp for this
-    default:
-      throw new Error(`No Date Changes for status: ${status}`);
-  }
-};
-
-/**
  * @param {number} quantity - How many
  * @param {{pickup: any, warehouse: any, product: any}} data - data for item
  */

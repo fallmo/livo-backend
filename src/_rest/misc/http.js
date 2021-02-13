@@ -35,7 +35,7 @@ export class HttpFailResponse {
 
     if (error.name === "RouteError") {
       this.status = 404;
-      this.message = "Invalid URL Route";
+      this.message = "No Resource";
       this.detail = `Route: ${error.message}`;
       this.type = error.name;
     }

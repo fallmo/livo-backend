@@ -14,7 +14,7 @@ import { requiresRelatedPi } from "../middleware/requiresRelatedPi";
 // base => /pickups
 const router = Router();
 router.use(requiresAuth);
-router.use(requiresOptionPi); // only main warehouse + only deliverers with options.pickups === true
+router.use(requiresOptionPi); // only warehouse with options.pickups == true + only deliverers with options.pickups === true
 
 router.get(
   "/",

@@ -1,25 +1,51 @@
+import Deliverer from "../../../_rest/models/Deliverer";
 import Order from "../../../_rest/models/Order";
 import Warehouse from "../../../_rest/models/Warehouse";
-import Deliverer from "../../../_rest/models/Deliverer";
 
 export const getOrders = async (query = {}) => {
+  const projections = "-__v -target.name -target.phone -client -products";
   if (query.warehouse) {
     const warehouse = await Warehouse.findOne(
       { _id: query.warehouse },
       "city"
     ).lean();
-    return Order.find({ "target.city": warehouse.city }, "-__v -target").lean();
+
+    const deliverers = (
+      await Deliverer.find({ warehouse: query.warehouse }, "_id").lean()
+    ).map(del => del._id);
+
+    return Order.find(
+      {
+        $or: [
+          { deliverer: { $exists: false }, "target.city": warehouse?.city },
+          { deliverer: { $in: deliverers } },
+        ],
+      },
+      projections
+    );
   }
+
   if (query.deliverer) {
     const deliverer = await Deliverer.findOne(
       { _id: query.deliverer },
       "warehouse"
-    ).populate("warehouse", "city");
+    ).lean();
+
+    const warehouse = await Warehouse.findOne(
+      { _id: deliverer?.warehouse },
+      "city"
+    ).lean();
 
     return Order.find(
-      { "target.city": deliverer.warehouse.city },
-      "-__v -target"
-    ).lean();
+      {
+        $or: [
+          { deliverer: query.deliverer },
+          { deliverer: { $exists: false }, "target.city": warehouse?.city },
+        ],
+      },
+      projections
+    );
   }
-  return Order.find(query, "__v").lean();
+
+  return Order.find(query, projections);
 };

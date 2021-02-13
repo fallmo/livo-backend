@@ -4,7 +4,6 @@ import Product from "../../../../_rest/models/Product";
 import { ClientError } from "../../../../_rest/misc/errors";
 import Warehouse from "../../../../_rest/models/Warehouse";
 import { freeItems } from "../../utils";
-import Item from "../../../../_rest/models/Item";
 import Order from "../../../../_rest/models/Order";
 
 /**
@@ -12,6 +11,15 @@ import Order from "../../../../_rest/models/Order";
  * @param {any} from_warehouse - Where Container is coming from
  */
 export const validateWarehouseID = async (to_warehouse, from_warehouse) => {
+  const from = await Warehouse.findOne(
+    { _id: from_warehouse },
+    "city options"
+  ).lean();
+
+  if (!from?.options?.transfer_out) {
+    throw new ClientError(`You are not allowed to make transfers`);
+  }
+
   if (!isValidObjectId(to_warehouse)) {
     throw new ClientError(`Warehouse ID: ${to_warehouse} invalid`);
   }
@@ -21,15 +29,23 @@ export const validateWarehouseID = async (to_warehouse, from_warehouse) => {
     );
   }
 
-  const to = await Warehouse.findOne({ _id: to_warehouse }, "city").lean();
+  const to = await Warehouse.findOne(
+    { _id: to_warehouse },
+    "city options"
+  ).lean();
+
   if (!to) {
     throw new ClientError(`Destination Warehouse does not exist`);
   }
-  const from = await Warehouse.findOne({ _id: from_warehouse }, "city").lean();
+
   if (to.city === from.city) {
     throw new ClientError(
       "Container cannot be sent to a warehouse in the same city"
     );
+  }
+
+  if (!to.options?.transfer_in) {
+    throw new ClientError(`Destination Warehouse cannot accept transfers`);
   }
 
   return;
@@ -83,23 +99,17 @@ const ensureProductQuantity = async (product, quantity, items) => {
 export const updateTransfers = async (id, status, to_warehouse) => {
   const transfers = await Transfer.find({ container: id }, "status order");
   const transfer_status = matchContainerStatus(status);
-  const done = transfer_status === "fulfilled";
-  const deleted = status === "discarded";
+
   for (const transfer of transfers) {
     transfer.status = transfer_status;
-    if (deleted) {
+    if (status === "discarded") {
       transfer.container = undefined;
       await freeItems(transfer._id);
     }
     await transfer.save();
-    if (done) {
+    if (transfer_status === "fulfilled") {
       await freeItems(transfer._id, to_warehouse);
-      if (transfer.order) {
-        await Order.findByIdAndUpdate(
-          { _id: transfer.order },
-          { status: "pending" }
-        );
-      }
+      await handleTransferOrder(transfer.order, transfer._id);
     }
   }
 };
@@ -117,4 +127,18 @@ const matchContainerStatus = status => {
     default:
       throw new Error(`Unexpected Container Status: ${status}`);
   }
+};
+
+const handleTransferOrder = async (order_id, transfer_id) => {
+  if (!order_id) return;
+  const another_transfer = await Transfer.exists({
+    _id: { $ne: transfer_id },
+    status: { $nin: ["fulfilled", "cancelled"] },
+    order: order_id,
+  });
+  if (another_transfer) return;
+  await Order.findOneAndUpdate(
+    { _id: order_id, status: "awaiting transfer" },
+    { status: "pending" }
+  );
 };

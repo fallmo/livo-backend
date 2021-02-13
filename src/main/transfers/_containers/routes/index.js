@@ -31,18 +31,19 @@ router.patch(
   requiresRoles(["warehouse"], true),
   requiresRelatedCo,
   editContainerController
-); // get one container;
+); // edit one container;
 
 router.delete(
   "/containers/:id",
   requiresRoles(["warehouse"]),
   requiresOwnerCo,
   delContainerController
-);
+); // discard a container
+
 router.post(
   "/containers",
   requiresRoles(["warehouse"], true),
   addContainerController
-); // get one container;
+); // add a container;
 
 export default router;

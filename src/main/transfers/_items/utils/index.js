@@ -20,9 +20,9 @@ export const validateItemID = async (id, products, items, warehouse) => {
   if (!item) {
     throw new ClientError(`Item ${id} does not exist`);
   }
-  if (item.warehouse + "" !== warehouse) {
-    throw new ClientError(`Item ${id} belongs to another warehouse`);
-  }
+  // if (item.warehouse + "" !== warehouse) {
+  //   throw new ClientError(`Item ${id} belongs to another warehouse`);
+  // }
 
   if (item.status !== "available") {
     throw new ClientError(

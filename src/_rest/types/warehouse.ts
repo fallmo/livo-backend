@@ -15,6 +15,11 @@ export interface IWarehouse extends Document {
         order: number;
         pickup: number;
     }
+    options: {
+        pickups: boolean;
+        transfer_out: boolean;
+        transfer_in: boolean;
+    },
     pickups: IPickup[] // virtual
     transfers: {
         incoming: ITransfer[] // virtual,

@@ -1,6 +1,5 @@
 import { Response, NextFunction } from "express";
 import { PermissionError } from "../../../_rest/misc/errors";
-import Deliverer from "../../../_rest/models/Deliverer";
 import Warehouse from "../../../_rest/models/Warehouse";
 
 /**
@@ -8,30 +7,19 @@ import Warehouse from "../../../_rest/models/Warehouse";
  * @param {Response} res
  * @param {NextFunction} next
  */
-export const requiresOptionPi = async (req, res, next) => {
-  req.purpose = "Prove Rights to Pickup";
+export const requiresOptionT = async (req, res, next) => {
+  req.purpose = "Prove Rights to Transfer";
   try {
     if (req.user.role === "admin") return next();
     if (req.user.role === "client") return next();
 
-    if (req.user.role === "deliverer") {
-      // all deliverers can do pickups or only main?
-      const deliverer = await Deliverer.findOne(
-        { _id: req.user.deliverer },
-        "warehouse options"
-      ).populate("warehouse", "options");
-      // @ts-ignore
-      if (deliverer?.warehouse?.options?.pickups) {
-        if (!deliverer.options || deliverer.options.pickups) {
-          return next();
-        }
-      }
-    }
-
     if (req.user.role === "warehouse") {
       const exists = await Warehouse.exists({
         _id: req.user.warehouse,
-        "options.pickups": true,
+        $or: [
+          { "options.transfer_in": true },
+          { "options.transfer_out": true },
+        ],
       });
       if (exists) return next();
     }

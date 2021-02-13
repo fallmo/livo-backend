@@ -20,6 +20,21 @@ const schema = new Schema(
       order: Number,
       pickup: Number,
     },
+    options: {
+      _id: false,
+      pickups: {
+        type: Boolean,
+        default: false,
+      },
+      transfer_out: {
+        type: Boolean,
+        default: false,
+      },
+      transfer_in: {
+        type: Boolean,
+        default: true,
+      },
+    },
     active: {
       type: Boolean,
       default: true,

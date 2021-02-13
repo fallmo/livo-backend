@@ -68,7 +68,7 @@ export const validateProductID = async (
 
   const product = await Product.findOne(
     { _id: product_id },
-    "name client price"
+    "name client"
   ).lean();
 
   if (!product) {
@@ -82,7 +82,7 @@ export const validateProductID = async (
   const items = await Item.aggregate()
     .match({
       product: new Types.ObjectId(product_id),
-      status: "available",
+      status: { $in: ["available", "with deliverer"] },
     })
     .lookup({
       from: "warehouses",
@@ -106,11 +106,8 @@ export const validateProductID = async (
  * @param {string} [new_warehouse] - New Warehouse (after transfer)
  */
 export const freeItems = async (id, new_warehouse) => {
-  const items = await Item.find({ transfer: id }, "transfer status");
-  for (const item of items) {
-    item.transfer = undefined;
-    item.status = "available";
-    if (new_warehouse) item.warehouse = new_warehouse;
-    await item.save();
-  }
+  const change = { transfer: undefined, status: "available" };
+  if (new_warehouse) change["warehouse"] = new_warehouse;
+  //@ts-ignore
+  await Item.updateMany({ transfer: id }, change);
 };

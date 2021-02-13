@@ -9,14 +9,9 @@ export const validateEditOrder = async (data, role, status) => {
 function getSchema(role, status) {
   switch (role) {
     case "client":
-      if (status === "pending") {
-        return Joi.object({
-          status: Joi.string().valid("draft").optional(),
-        }).min(1);
-      } else if (status !== "draft") {
+      if (status !== "draft") {
         throw new ClientError(`You can no longer edit order`);
       }
-
       return Joi.object({
         desired_date: Joi.string().optional(),
         cost: Joi.number().optional(),
@@ -37,7 +32,9 @@ function getSchema(role, status) {
           zone: Joi.string().optional(),
         }).optional(),
         status: Joi.string().valid("pending").optional(),
-      });
+      })
+        .without("status", ["products", "target"])
+        .min(1);
     case "warehouse":
       if (status !== "pending") {
         throw new ClientError(
@@ -46,7 +43,7 @@ function getSchema(role, status) {
       }
       return Joi.object({
         deliverer: Joi.string().allow("").optional(),
-      });
+      }).min(1);
     case "deliverer":
       const valid = getValid(status);
       return Joi.object({
@@ -54,7 +51,7 @@ function getSchema(role, status) {
           .valid(...valid)
           .optional(),
         desired_date: Joi.string().optional(),
-      });
+      }).min(1);
     default:
       throw new Error(`Unexpected role: ${role}`);
   }

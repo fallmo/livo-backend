@@ -10,6 +10,7 @@ export const getTransfers = async (query = {}) => {
       "-__v"
     );
     const active_transfers = await Transfer.aggregate()
+      .match({ container: { $exists: true } })
       .lookup({
         from: "containers",
         localField: "container",
