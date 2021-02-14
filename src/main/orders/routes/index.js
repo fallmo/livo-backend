@@ -36,6 +36,13 @@ router.patch(
   editOrderController
 ); // edit an order
 
+router.delete(
+  "/:id",
+  requiresRoles(["client"]),
+  requiresOwnerO,
+  (req, res) => {}
+); // delete order
+
 router.post("/", requiresRoles(["client"], true), addOrderController);
 
 export default router;

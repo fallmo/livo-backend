@@ -3,7 +3,8 @@ import Order from "../../../_rest/models/Order";
 import Warehouse from "../../../_rest/models/Warehouse";
 
 export const getOrders = async (query = {}) => {
-  const projections = "-__v -target.name -target.phone -client -products";
+  const projections =
+    "-__v -target.name -target.phone -client -products -score -openable";
   if (query.warehouse) {
     const warehouse = await Warehouse.findOne(
       { _id: query.warehouse },

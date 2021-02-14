@@ -47,12 +47,6 @@ export const attemptLogin = async (data, details) => {
 
   const access_token = createToken(token_payload, { expiresIn: "15m" });
   const session_id = encrypt(session._id);
-  const uzer = {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-  };
 
-  return { session_id, access_token, user: uzer };
+  return { session_id, access_token, user: token_payload.user };
 };
